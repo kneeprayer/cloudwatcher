@@ -1,0 +1,65 @@
+version: '2'
+
+services:
+  elasticsearch:
+    build:
+      context: ./elasticsearch
+      dockerfile: Dockerfile
+    container_name: elasticsearch
+    #ports:
+    #  - "9200:9200"
+    #  - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+    networks:
+      - docker_elk
+  logstash:
+    build:
+      context: ./logstash
+      dockerfile: Dockerfile
+    container_name: logstash
+    command: -f /etc/logstash/conf.d/
+    volumes:
+      - ./logstash/conf:/etc/logstash/conf.d
+    #ports:
+    #  - "5000:5000"
+    #environment:
+      #- AWS_ACCESS_KEY_ID=dummy
+      #- AWS_SECRET_ACCESS_KEY=dummy
+    networks:
+      - docker_elk
+    depends_on:
+      - elasticsearch
+  kibana:
+    build:
+      context: ./kibana
+      dockerfile: Dockerfile
+    container_name: kibana
+    volumes:
+      - ./kibana/conf/:/etc/kibana/
+    #ports:
+    #  - "5601:5601"
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    networks:
+      - docker_elk
+    depends_on:
+      - elasticsearch
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    #image: nginx:1.11.1-alpine
+    #volumes:
+    #  - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+    networks:
+      - docker_elk
+    depends_on:
+      - kibana
+
+networks:
+  docker_elk:
+    driver: bridge
