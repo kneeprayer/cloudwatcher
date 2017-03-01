@@ -9,8 +9,10 @@ services:
     #ports:
     #  - "9200:9200"
     #  - "9300:9300"
-    environment:
-      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+    #environment:
+    #  ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+    volumes:
+      - C:\Users\angelneo\docker\elasticsearch\data\:/usr/share/elasticsearch/data/
     networks:
       - docker_elk
   logstash:
@@ -19,13 +21,14 @@ services:
       dockerfile: Dockerfile
     container_name: logstash
     command: -f /etc/logstash/conf.d/
-    volumes:
-      - ./logstash/conf:/etc/logstash/conf.d
+    #volumes:
+    #  - ./logstash/conf:/etc/logstash/conf.d
     #ports:
     #  - "5000:5000"
-    #environment:
-      #- AWS_ACCESS_KEY_ID=dummy
-      #- AWS_SECRET_ACCESS_KEY=dummy
+    environment:
+      - AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY=$AWS_ACCESS_KEY_ID
+      - AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
     networks:
       - docker_elk
     depends_on:
@@ -35,8 +38,8 @@ services:
       context: ./kibana
       dockerfile: Dockerfile
     container_name: kibana
-    volumes:
-      - ./kibana/conf/:/etc/kibana/
+    #volumes:
+    #  - ./kibana/conf/:/etc/kibana/
     #ports:
     #  - "5601:5601"
     environment:
